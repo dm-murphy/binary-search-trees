@@ -1,5 +1,4 @@
 class Node
-  #include Comparable
   attr_accessor :data, :left_child, :right_child
 
   def initialize(data)
@@ -7,10 +6,6 @@ class Node
     @left_child = nil
     @right_child = nil
   end
-
-  # def compare
-  #   @left_child <=> @right_child
-  # end
 end
 
 class Tree
@@ -26,8 +21,6 @@ class Tree
 
     middle = (array.length - 1) / 2
     node = Node.new(array[middle])
-    #puts array # Keep for debugging
-    #puts root.data # Keep for debugging
     node.left_child = build_tree(array[0...middle])
     node.right_child = build_tree(array[middle + 1..-1])
     node
@@ -39,19 +32,19 @@ class Tree
     pretty_print(node.left_child, "#{prefix}#{is_left ? '    ' : '│   '}", true) if node.left_child
   end
 
-  def find(value, root_node = @root)
-    # Bug: If value does not exist in tree => NoMethodError: undefined method 'data' for nil
-    return root_node if root_node.data == nil || root_node.data == value
+  def find(value, node = @root)
+    return if node.nil?
+    return node if node.data == value
 
-    if root_node.data > value
-      return find(value, root_node.left_child)
-    elsif root_node.data < value
-      return find(value, root_node.right_child)
+    if node.data > value
+      find(value, node.left_child)
+    elsif node.data < value
+      find(value, node.right_child)
     end
   end
 
   def insert(value, root_node = @root)
-    return Node.new(value) if root_node == nil
+    return Node.new(value) if root_node.nil?
   
     if root_node.data == value
       return root_node
@@ -60,7 +53,7 @@ class Tree
     elsif root.data > value
       root_node.left_child = insert(value, root_node.left_child)
     end
-    return root_node
+    root_node
   end
 
   def smallest_left(node)
@@ -68,7 +61,7 @@ class Tree
     while current_node.left_child != nil
       current_node = current_node.left_child
     end
-    return current_node
+    current_node
   end
 
   def delete(value, root_node = @root)
@@ -97,17 +90,15 @@ class Tree
   end 
   
   def level_order(root_node = @root)
-    # try recursion way too?
     return root_node if root_node.nil?
 
     queue = []
     queue.push(root_node)
     level_order_array = []
     until queue.empty?
-      current_node = queue.last
-      level_order_array.push(current_node.data)
-      queue.unshift(current_node.left_child) unless current_node.left_child.nil?
-      queue.unshift(current_node.right_child) unless current_node.right_child.nil?
+      level_order_array.push(queue.last.data)
+      queue.unshift(queue.last.left_child) if queue.last.left_child
+      queue.unshift(queue.last.right_child) if queue.last.right_child
       queue.pop
     end
     level_order_array
@@ -137,32 +128,97 @@ class Tree
     postorder(root_node.left_child, array)
     postorder(root_node.right_child, array)
     array.push(root_node.data)
-    
+  end
+
+  def height(value)
+    node = find(value)
+    find_height(node)
+  end
+
+  def find_height(node)
+    return -1 if node.nil?
+
+    left_height = find_height(node.left_child)
+    right_height = find_height(node.right_child)
+    [left_height, right_height].max + 1
+  end
+
+  def depth(value)
+    node = find(value)
+    find_depth(node)
+  end
+
+  def find_depth(node, counter = 0, root_node = @root)
+    return counter if node == root_node
+
+    if node.data < root_node.data
+      find_depth(node, counter + 1, root_node.left_child)
+    else
+      find_depth(node, counter + 1, root_node.right_child)
+    end
+  end
+
+  def balanced?
+    left = find_height(root.left_child)
+    right = find_height(root.right_child)
+    left - right > 1 || right - left > 1 ? false : true
+  end
+
+  def rebalance
+    array = level_order
+    new_tree = array.uniq.sort
+    @root = build_tree(new_tree)
   end
 end
 
-#bst = Tree.new(Array.new(15) { rand(1..100) })
-#bst = Tree.new([3, 2, 1, 4, 8, 6, 7, 5, 8])
-#bst = Tree.new([20, 30, 32, 34, 36, 40, 50, 60, 65, 70, 75, 80, 85])
-bst = Tree.new([50, 30, 70, 20, 40, 60, 80, 35, 45, 65, 75, 85])
+bst = Tree.new(Array.new(15) { rand(1..100) })
 bst.pretty_print
 puts
+puts "Balanced:"
+puts bst.balanced?
+puts
+puts "Level order:" 
+p bst.level_order
+puts
+puts "Preorder:"
 p bst.preorder
 puts
-p bst.inorder
-puts
+puts "Postorder:"
 p bst.postorder
 puts
-
-puts bst.find(7)
-
-
-#bst.insert(9)
-#bst.pretty_print
-#puts bst.find(70)
-# bst.delete(20)
-# bst.pretty_print
-# bst.delete(30)
-# bst.pretty_print
-# bst.delete(50)
-# bst.pretty_print
+puts "Inorder:"
+p bst.inorder
+puts
+puts "Inserting more numbers..."
+bst.insert(1)
+bst.insert(17)
+bst.insert(37)
+bst.insert(2)
+bst.insert(4)
+bst.insert(7)
+bst.insert(6)
+bst.insert(5)
+bst.pretty_print
+puts
+puts "Balanced:"
+puts bst.balanced?
+puts
+puts "Rebalancing..."
+puts
+bst.rebalance
+bst.pretty_print
+puts
+puts "Balanced:"
+puts bst.balanced?
+puts
+puts "Level order:" 
+p bst.level_order
+puts
+puts "Preorder:"
+p bst.preorder
+puts
+puts "Postorder:"
+p bst.postorder
+puts
+puts "Inorder:"
+p bst.inorder
