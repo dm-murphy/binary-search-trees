@@ -3,7 +3,17 @@
 require_relative 'node.rb'
 require_relative 'tree.rb'
 
-bst = Tree.new(Array.new(15) { rand(1..100) })
+bst = Tree.new([1,2,3,4,5,6,7])
+bst.pretty_print
+p bst.insert(4)
+bst.pretty_print
+p bst.insert(99)
+bst.pretty_print
+
+
+
+#bst = Tree.new(Array.new(15) { rand(1..100) })
+
 bst.pretty_print
 puts
 puts "Balanced:"
