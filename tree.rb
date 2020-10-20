@@ -38,10 +38,9 @@ class Tree
 
   def insert(value, root_node = @root)
     return Node.new(value) if root_node.nil?
-  
-    if root_node.data == value
-      return root_node
-    elsif root_node.data < value
+    return root_node if root_node.data == value
+
+    if root_node.data < value
       root_node.right_child = insert(value, root_node.right_child)
     elsif root.data > value
       root_node.left_child = insert(value, root_node.left_child)
@@ -50,11 +49,8 @@ class Tree
   end
 
   def smallest_left(node)
-    current_node = node
-    while current_node.left_child != nil
-      current_node = current_node.left_child
-    end
-    current_node
+    node = node.left_child until node.left_child.nil?
+    node
   end
 
   def delete(value, root_node = @root)
