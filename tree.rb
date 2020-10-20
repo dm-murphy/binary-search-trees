@@ -48,36 +48,54 @@ class Tree
     root_node
   end
 
-  def smallest_left(node)
-    node = node.left_child until node.left_child.nil?
-    node
-  end
-
   def delete(value, root_node = @root)
-    if root_node.data == nil
-      return root_node
-    elsif value < root_node.data
+    return root_node if root_node.nil?
+
+    if value < root_node.data
       root_node.left_child = delete(value, root_node.left_child)
     elsif value > root_node.data
       root_node.right_child = delete(value, root_node.right_child)
     else
-      if root_node.left_child == nil
+      # Helper method #delete_root not working. Node from #smallest_left remains
+      # delete_root(root_node)
+      if root_node.left_child.nil?
         temp = root_node.right_child
         root_node = nil
         return temp
-      elsif root_node.right_child == nil
+      elsif root_node.right_child.nil?
         temp = root_node.left_child
         root_node = nil
         return temp
       end
       temp = smallest_left(root_node.right_child)
       root_node.data = temp.data
-      root_node.right_child = delete(temp.data, root_node.right_child)
+      delete(temp.data, root_node.right_child)
     end
 
     root_node
-  end 
-  
+  end
+
+  # def delete_root(root_node)
+  #   if root_node.left_child.nil?
+  #     temp = root_node.right_child
+  #     root_node = nil
+  #     return temp
+  #   elsif root_node.right_child.nil?
+  #     temp = root_node.left_child
+  #     root_node = nil
+  #     return temp
+  #   end
+  #   temp = smallest_left(root_node.right_child)
+  #   root_node.data = temp.data
+  #   delete(temp.data, root_node.right_child)
+  # end
+
+  def smallest_left(node)
+    current_node = node
+    current_node = current_node.left_child until current_node.left_child.nil?
+    current_node
+  end
+
   def level_order(root_node = @root)
     return root_node if root_node.nil?
 
